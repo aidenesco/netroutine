@@ -1,5 +1,5 @@
 # netroutine [![GoDoc](https://godoc.org/github.com/aidenesco/netroutine?status.svg)](https://godoc.org/github.com/aidenesco/netroutine) [![Go Report Card](https://goreportcard.com/badge/github.com/aidenesco/netroutine)](https://goreportcard.com/report/github.com/aidenesco/netroutine)
-This package facilitates the creation and running of network request routines. This is useful for automating web scraping jobs.
+This package facilitates the creation and execution of network request routines. This is useful for automating web scraping jobs.
 
 ## Installation
 ```sh
@@ -17,6 +17,6 @@ func main() {
 
     routine.Run(env)
 
-    fmt.PrintLn(env.Status)
-    //Success
+    fmt.Println(env.Status) // Success
+  }
 ```
