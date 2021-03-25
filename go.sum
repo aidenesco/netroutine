@@ -1,0 +1,10 @@
+github.com/Jeffail/gabs/v2 v2.6.0 h1:WdCnGaDhNa4LSRTMwhLZzJ7SRDXjABNP13SOKvCpL5w=
+github.com/Jeffail/gabs/v2 v2.6.0/go.mod h1:xCn81vdHKxFUuWWAaD5jCTQDNPBMh5pPs9IJ+NcziBI=
+github.com/aidenesco/anticaptcha v0.0.0-20201209175739-a75380725073 h1:+nAkTCcbOGVHvl3tjTJQ9YCz2VHRRZAMB/mbELjSLt8=
+github.com/aidenesco/anticaptcha v0.0.0-20201209175739-a75380725073/go.mod h1:R3WnQIX0TCJl89tjtmky7loa9I4Qcj2mJjBTEeyDlUw=
+github.com/aidenesco/randomua v0.0.0-20201111025750-034f5a0807a9 h1:aZowxsi4R2QhuSJZtum6GJDVwpEdfSlihQEGcmAcwsg=
+github.com/aidenesco/randomua v0.0.0-20201111025750-034f5a0807a9/go.mod h1:ThdB+joIJca4IbnTW7gESuDr22qrC71un8dw4EGXKvk=
+github.com/google/uuid v1.2.0 h1:qJYtXnJRWmpe7m/3XlyhrsLrEURqHRM2kxzoxXqyUDs=
+github.com/google/uuid v1.2.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
+github.com/mroth/weightedrand v0.4.0 h1:Pt7X0FLDzsY1SYauvbyIy/vgZJYb6kMYrrv9VgQ420k=
+github.com/mroth/weightedrand v0.4.0/go.mod h1:3p2SIcC8al1YMzGhAIoXD+r9olo/g/cdJgAD905gyNE=
