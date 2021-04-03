@@ -74,9 +74,9 @@ func (wce *Environment) lastResponseBody() (string, error) {
 
 	resp.Body = ioutil.NopCloser(bytes.NewBuffer(respBody))
 
-	if string(respBody) == "" {
-		return "", errors.New("empty body")
-	}
+	//if string(respBody) == "" {
+	//	return "", errors.New("empty body")
+	//}
 
 	return string(respBody), nil
 }
