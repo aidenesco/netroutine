@@ -43,6 +43,7 @@ var (
 		idBlockRandomChoiceList:  BlockRandomChoiceList{},
 		idBlockRandomUA:          BlockRandomUA{},
 		idBlockRecaptcha:         BlockRecaptcha{},
+		idBlockRecaptchaV3:       BlockRecaptchaV3{},
 		idBlockRequest:           BlockRequest{},
 		idBlockSetCookie:         BlockSetCookie{},
 		idBlockSetVariable:       BlockSetVariable{},
