@@ -65,7 +65,7 @@ func (b *BlockRequest) Run(wce *Environment) (string, error) {
 		resetBody io.Reader
 	)
 
-	if b.Method == http.MethodGet || b.Method == "" {
+	if b.Method == http.MethodGet || b.Method == http.MethodHead || b.Method == http.MethodOptions || b.Method == "" {
 		builtBody = bytes.NewBuffer([]byte{})
 		resetBody = bytes.NewBuffer([]byte{})
 	} else {
