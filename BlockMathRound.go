@@ -29,7 +29,7 @@ func (b *BlockMathRound) kind() string {
 	return IDBlockMathRound
 }
 
-func (b *BlockMathRound) Run(wce *Environment) (string, error) {
+func (b *BlockMathRound) Run(wce *Environment) (string, Status) {
 
 	s, ok := wce.getData(b.FromKey)
 	if !ok {

@@ -23,7 +23,7 @@ func (b *BlockVarLenFilter) kind() string {
 	return idBlockVarLenFilter
 }
 
-func (b *BlockVarLenFilter) Run(wce *Environment) (string, error) {
+func (b *BlockVarLenFilter) Run(wce *Environment) (string, Status) {
 	v, ok := wce.getData(b.FromKey)
 	if !ok {
 		return log(b, "couldn't find the variable", Error)

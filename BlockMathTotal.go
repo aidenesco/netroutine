@@ -24,7 +24,7 @@ func (b *BlockMathTotal) kind() string {
 	return idBlockMathTotal
 }
 
-func (b *BlockMathTotal) Run(wce *Environment) (string, error) {
+func (b *BlockMathTotal) Run(wce *Environment) (string, Status) {
 	var total float64
 	v, ok := wce.getData(b.FromKey)
 	if !ok {

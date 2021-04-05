@@ -26,7 +26,7 @@ func (b *BlockRandomChoiceList) kind() string {
 	return idBlockRandomChoiceList
 }
 
-func (b *BlockRandomChoiceList) Run(wce *Environment) (string, error) {
+func (b *BlockRandomChoiceList) Run(wce *Environment) (string, Status) {
 	rand.Seed(time.Now().UnixNano())
 
 	choice := b.Choices[rand.Intn(len(b.Choices))]

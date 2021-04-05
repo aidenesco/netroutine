@@ -32,7 +32,7 @@ func (b *BlockJSONBuilder) kind() string {
 	return idBlockJSONBuilder
 }
 
-func (b *BlockJSONBuilder) Run(wce *Environment) (string, error) {
+func (b *BlockJSONBuilder) Run(wce *Environment) (string, Status) {
 	data := gabs.New()
 
 	for _, v := range b.Values {

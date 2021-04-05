@@ -26,7 +26,7 @@ func (b *BlockMD5Hash) kind() string {
 	return idBlockMD5Hash
 }
 
-func (b *BlockMD5Hash) Run(wce *Environment) (string, error) {
+func (b *BlockMD5Hash) Run(wce *Environment) (string, Status) {
 	hasher := md5.New()
 
 	s, ok := wce.getData(b.FromKey)

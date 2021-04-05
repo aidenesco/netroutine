@@ -27,7 +27,7 @@ func (b *BlockRecaptchaV3) kind() string {
 	return idBlockRecaptchaV3
 }
 
-func (b *BlockRecaptchaV3) Run(wce *Environment) (string, error) {
+func (b *BlockRecaptchaV3) Run(wce *Environment) (string, Status) {
 	key, found := wce.getSecret("anticaptcha")
 	if !found {
 		return log(b, "unable to find anticaptcha api key", Error)

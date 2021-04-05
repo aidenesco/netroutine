@@ -25,7 +25,7 @@ func (b *BlockParseHeader) kind() string {
 	return idBlockParseHeader
 }
 
-func (b *BlockParseHeader) Run(wce *Environment) (string, error) {
+func (b *BlockParseHeader) Run(wce *Environment) (string, Status) {
 	resp, err := wce.lastResponse()
 	if err != nil {
 		return log(b, fmt.Sprintf("error getting response - %v", err), Error)

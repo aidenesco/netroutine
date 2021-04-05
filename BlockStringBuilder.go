@@ -25,7 +25,7 @@ func (b *BlockStringBuilder) kind() string {
 	return idBlockStringBuilder
 }
 
-func (b *BlockStringBuilder) Run(wce *Environment) (string, error) {
+func (b *BlockStringBuilder) Run(wce *Environment) (string, Status) {
 	var sub []interface{}
 	for _, v := range b.Variables {
 		sv, ok := wce.getData(v)

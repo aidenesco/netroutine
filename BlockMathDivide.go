@@ -25,7 +25,7 @@ func (b *BlockMathDivide) kind() string {
 	return idBlockMathDivide
 }
 
-func (b *BlockMathDivide) Run(wce *Environment) (string, error) {
+func (b *BlockMathDivide) Run(wce *Environment) (string, Status) {
 
 	s1, ok := wce.getData(b.Source1Key)
 	if !ok {

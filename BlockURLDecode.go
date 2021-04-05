@@ -25,7 +25,7 @@ func (b *BlockURLDecode) kind() string {
 	return idBlockURLDecode
 }
 
-func (b *BlockURLDecode) Run(wce *Environment) (string, error) {
+func (b *BlockURLDecode) Run(wce *Environment) (string, Status) {
 	v, ok := wce.getData(b.FromKey)
 	if !ok {
 		return log(b, "couldn't find the variable to decode", Error)

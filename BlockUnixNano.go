@@ -25,7 +25,7 @@ func (b *BlockUnixNano) kind() string {
 	return idBlockUnixNano
 }
 
-func (b *BlockUnixNano) Run(wce *Environment) (string, error) {
+func (b *BlockUnixNano) Run(wce *Environment) (string, Status) {
 	ts := strconv.FormatInt(time.Now().UTC().UnixNano(), 10)
 
 	wce.setData(b.ToKey, ts)

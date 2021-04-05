@@ -32,7 +32,7 @@ func (b *BlockURLEncodedBuilder) kind() string {
 	return idBlockURLEncodedBuilder
 }
 
-func (b *BlockURLEncodedBuilder) Run(wce *Environment) (string, error) {
+func (b *BlockURLEncodedBuilder) Run(wce *Environment) (string, Status) {
 	data := url.Values{}
 
 	for _, v := range b.Values {

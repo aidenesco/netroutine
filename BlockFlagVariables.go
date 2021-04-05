@@ -23,7 +23,7 @@ func (b *BlockFlagVariables) kind() string {
 	return idBlockFlagVariables
 }
 
-func (b *BlockFlagVariables) Run(wce *Environment) (string, error) {
+func (b *BlockFlagVariables) Run(wce *Environment) (string, Status) {
 	for _, s := range b.Vars {
 		_, ok := wce.getData(s)
 		if !ok {

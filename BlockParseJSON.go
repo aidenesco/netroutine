@@ -27,7 +27,7 @@ func (b *BlockParseJSON) kind() string {
 	return idBlockParseJSON
 }
 
-func (b *BlockParseJSON) Run(wce *Environment) (string, error) {
+func (b *BlockParseJSON) Run(wce *Environment) (string, Status) {
 
 	body, err := wce.lastResponseBody()
 	if err != nil {

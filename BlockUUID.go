@@ -24,7 +24,7 @@ func (b *BlockUUID) kind() string {
 	return idBlockUUID
 }
 
-func (b *BlockUUID) Run(wce *Environment) (string, error) {
+func (b *BlockUUID) Run(wce *Environment) (string, Status) {
 
 	s := uuid.New().String()
 

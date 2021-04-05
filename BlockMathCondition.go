@@ -26,9 +26,9 @@ func (b *BlockMathCondition) kind() string {
 	return idBlockMathCondition
 }
 
-func (b *BlockMathCondition) Run(wce *Environment) (string, error) {
-	var statusPass error
-	var statusFail error
+func (b *BlockMathCondition) Run(wce *Environment) (string, Status) {
+	var statusPass Status
+	var statusFail Status
 	var err error
 	var metCondition bool
 
@@ -90,7 +90,7 @@ func (b *BlockMathCondition) Run(wce *Environment) (string, error) {
 			metCondition = false
 		}
 	default:
-		return log(b, "invalid operation", Error)
+		return log(b, "invalid operation - must be one of: ==, !=, <, <=, >, >=", Error)
 	}
 
 	if !metCondition {

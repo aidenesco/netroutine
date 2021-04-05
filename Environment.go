@@ -19,7 +19,7 @@ var universalOptions []EnvironmentOption
 type Environment struct {
 	WorkingData map[string]interface{}
 	ExportData  map[string]interface{}
-	Status      error
+	Status      Status
 	Logs        []string
 	Responses   []*http.Response
 	Client      *http.Client
@@ -45,7 +45,7 @@ type EnvironmentOption func(environment *Environment) error
 func (wce *Environment) ToResult() *Result {
 	return &Result{
 		ExportData: wce.ExportData,
-		Status:     wce.Status.Error(),
+		Status:     wce.Status.String(),
 		Logs:       wce.Logs,
 	}
 }
@@ -60,6 +60,10 @@ func (wce *Environment) LastLog() string {
 	}
 
 	return wce.Logs[len(wce.Logs)-1]
+}
+
+func (wce *Environment) StatusString() string {
+	return wce.Status.String()
 }
 
 func (wce *Environment) lastResponse() (*http.Response, error) {
@@ -105,7 +109,7 @@ func (wce *Environment) logHTTPResponse(resp *http.Response) error {
 		return err
 	}
 
-	if resp.Request.Method != http.MethodGet {
+	if resp.Request.Method != http.MethodGet && resp.Request.Method != http.MethodHead && resp.Request.Method != http.MethodOptions && resp.Request.Method != "" {
 		wce.fullLogs.WriteString("\n\n")
 	}
 
@@ -305,24 +309,24 @@ func toTime(data interface{}) (time.Time, error) {
 	return ptime, nil
 }
 
-func statusFromString(s string) (retStatus error, retError error) {
+func statusFromString(s string) (retStatus Status, retError error) {
 	switch s {
-	case Success.Error():
+	case Success.String():
 		retStatus = Success
-	case Fail.Error():
+	case Fail.String():
 		retStatus = Fail
-	case Retry.Error():
+	case Retry.String():
 		retStatus = Retry
-	case Error.Error():
+	case Error.String():
 		retStatus = Error
-	case Custom.Error():
+	case Custom.String():
 		retStatus = Custom
 	default:
-		retError = errors.New("status should be one of: success, fail, retry, error, custom")
+		retError = errors.New("status should be one of: Success, Fail, Retry, Error, Custom")
 	}
 	return
 }
 
-func log(b Runnable, m string, e error) (string, error) {
-	return "[" + e.Error() + "] " + b.kind() + ": " + m, e
+func log(b Runnable, m string, s Status) (string, Status) {
+	return "[" + s.String() + "] " + b.kind() + ": " + m, s
 }

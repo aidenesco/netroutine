@@ -27,7 +27,7 @@ func (b *BlockParseCookies) kind() string {
 	return idBlockParseCookies
 }
 
-func (b *BlockParseCookies) Run(wce *Environment) (string, error) {
+func (b *BlockParseCookies) Run(wce *Environment) (string, Status) {
 	parsed, err := url.Parse(b.URL)
 	if err != nil {
 		return log(b, fmt.Sprintf("error parsing url - %v", err), Error)

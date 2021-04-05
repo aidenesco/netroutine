@@ -25,7 +25,7 @@ func (b *BlockMathCeil) kind() string {
 	return idBlockMathCeil
 }
 
-func (b *BlockMathCeil) Run(wce *Environment) (string, error) {
+func (b *BlockMathCeil) Run(wce *Environment) (string, Status) {
 
 	s, ok := wce.getData(b.FromKey)
 	if !ok {

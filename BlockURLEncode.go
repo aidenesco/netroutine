@@ -25,7 +25,7 @@ func (b *BlockURLEncode) kind() string {
 	return idBlockURLEncode
 }
 
-func (b *BlockURLEncode) Run(wce *Environment) (string, error) {
+func (b *BlockURLEncode) Run(wce *Environment) (string, Status) {
 	v, ok := wce.getData(b.FromKey)
 	if !ok {
 		return log(b, "couldn't find the variable to encode", Error)

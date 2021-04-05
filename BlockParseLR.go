@@ -28,7 +28,7 @@ func (b *BlockParseLR) kind() string {
 	return idBlockParseLR
 }
 
-func (b *BlockParseLR) Run(wce *Environment) (string, error) {
+func (b *BlockParseLR) Run(wce *Environment) (string, Status) {
 	strbody, err := wce.lastResponseBody()
 	if err != nil {
 		return log(b, fmt.Sprintf("error getting response body - %v", err), Error)

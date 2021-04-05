@@ -26,7 +26,7 @@ func (b *BlockRecaptcha) kind() string {
 	return idBlockRecaptcha
 }
 
-func (b *BlockRecaptcha) Run(wce *Environment) (string, error) {
+func (b *BlockRecaptcha) Run(wce *Environment) (string, Status) {
 
 	key, found := wce.getSecret("anticaptcha")
 	if !found {

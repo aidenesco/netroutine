@@ -25,7 +25,7 @@ func (b *BlockFlagTimePassed) kind() string {
 	return idBlockFlagTimePassed
 }
 
-func (b *BlockFlagTimePassed) Run(wce *Environment) (string, error) {
+func (b *BlockFlagTimePassed) Run(wce *Environment) (string, Status) {
 	current := time.Now()
 
 	val, ok := wce.getData(b.FromKey)

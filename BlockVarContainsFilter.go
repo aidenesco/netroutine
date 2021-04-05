@@ -24,7 +24,7 @@ func (b *BlockVarContainsFilter) kind() string {
 	return idBlockVarContainsFilter
 }
 
-func (b *BlockVarContainsFilter) Run(wce *Environment) (string, error) {
+func (b *BlockVarContainsFilter) Run(wce *Environment) (string, Status) {
 	v, ok := wce.getData(b.FromKey)
 	if !ok {
 		return log(b, "couldn't find the variable", Error)

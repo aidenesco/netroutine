@@ -29,7 +29,7 @@ func (b *BlockSetCookie) kind() string {
 	return idBlockSetCookie
 }
 
-func (b *BlockSetCookie) Run(wce *Environment) (string, error) {
+func (b *BlockSetCookie) Run(wce *Environment) (string, Status) {
 	purl, err := url.Parse(b.URL)
 	if err != nil {
 		return log(b, "unable to parse url", Error)

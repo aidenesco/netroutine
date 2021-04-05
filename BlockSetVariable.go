@@ -24,7 +24,7 @@ func (b *BlockSetVariable) kind() string {
 	return idBlockSetVariable
 }
 
-func (b *BlockSetVariable) Run(wce *Environment) (string, error) {
+func (b *BlockSetVariable) Run(wce *Environment) (string, Status) {
 	wce.setData(b.ToKey, b.Value)
 
 	return log(b, fmt.Sprintf("set %v to %v", b.ToKey, b.Value), Success)

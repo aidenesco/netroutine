@@ -25,7 +25,7 @@ func (b *BlockBase64Encode) kind() string {
 	return idBlockBase64Encode
 }
 
-func (b *BlockBase64Encode) Run(wce *Environment) (string, error) {
+func (b *BlockBase64Encode) Run(wce *Environment) (string, Status) {
 	v, ok := wce.getData(b.FromKey)
 	if !ok {
 		return log(b, "missing input variable", Error)

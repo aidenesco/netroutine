@@ -26,7 +26,7 @@ func (b *BlockBasicAuth) kind() string {
 	return idBlockBasicAuth
 }
 
-func (b *BlockBasicAuth) Run(wce *Environment) (string, error) {
+func (b *BlockBasicAuth) Run(wce *Environment) (string, Status) {
 	u, ok := wce.getData(b.UsernameVar)
 	if !ok {
 		return log(b, "unable to find username variable", Error)

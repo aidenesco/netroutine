@@ -54,7 +54,7 @@ func (b *BlockRequest) kind() string {
 	return idBlockRequest
 }
 
-func (b *BlockRequest) Run(wce *Environment) (string, error) {
+func (b *BlockRequest) Run(wce *Environment) (string, Status) {
 	builtURL, err := buildURL(b.URL, wce)
 	if err != nil {
 		return log(b, fmt.Sprintf("error building url - %v", err), Error)

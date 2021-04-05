@@ -9,12 +9,26 @@ import (
 	"time"
 )
 
+type Status int
+
+const (
+	Success Status = iota
+	Fail
+	Retry
+	Error
+	Custom
+)
+
+func (s Status) String() string {
+	return [...]string{"Success", "Fail", "Retry", "Error", "Custom"}[s]
+}
+
 var (
-	Success = errors.New("success")
-	Fail    = errors.New("fail")
-	Retry   = errors.New("retry")
-	Error   = errors.New("error")
-	Custom  = errors.New("custom")
+	//Success = errors.New("success")
+	//Fail    = errors.New("fail")
+	//Retry   = errors.New("retry")
+	//Error   = errors.New("error")
+	//Custom  = errors.New("custom")
 
 	blocks = map[string]interface{}{
 		idBlockAppId:             BlockAppId{},
@@ -69,7 +83,7 @@ type Routine struct {
 }
 
 type Runnable interface {
-	Run(c *Environment) (message string, err error)
+	Run(wce *Environment) (message string, status Status)
 	kind() string
 	toBytes() ([]byte, error)
 	fromBytes([]byte) error
@@ -133,12 +147,12 @@ func (r *Routine) Run(wce *Environment) {
 				return
 			}
 
-			msg, err := v.Run(wce)
+			msg, status := v.Run(wce)
 
 			wce.addLog(msg)
-			wce.Status = err
+			wce.Status = status
 
-			switch err {
+			switch status {
 			case Error:
 				return
 			case Retry:

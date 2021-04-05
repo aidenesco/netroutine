@@ -25,7 +25,7 @@ func (b *BlockAppId) kind() string {
 	return idBlockAppId
 }
 
-func (b *BlockAppId) Run(wce *Environment) (string, error) {
+func (b *BlockAppId) Run(wce *Environment) (string, Status) {
 
 	s := strings.ToUpper(uuid.New().String())
 

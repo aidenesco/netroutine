@@ -25,7 +25,7 @@ func (b *BlockMathMultiply) kind() string {
 	return idBlockMathMultiply
 }
 
-func (b *BlockMathMultiply) Run(wce *Environment) (string, error) {
+func (b *BlockMathMultiply) Run(wce *Environment) (string, Status) {
 
 	s1, ok := wce.getData(b.Source1Key)
 	if !ok {

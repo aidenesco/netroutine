@@ -24,7 +24,7 @@ func (b *BlockToFloat) kind() string {
 	return idBlockToFloat
 }
 
-func (b *BlockToFloat) Run(wce *Environment) (string, error) {
+func (b *BlockToFloat) Run(wce *Environment) (string, Status) {
 	orig, ok := wce.getData(b.FromKey)
 	if !ok {
 		return log(b, "couldn't find the source variable", Error)

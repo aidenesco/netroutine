@@ -24,7 +24,7 @@ func (b *BlockRandomUA) kind() string {
 	return idBlockRandomUA
 }
 
-func (b *BlockRandomUA) Run(wce *Environment) (string, error) {
+func (b *BlockRandomUA) Run(wce *Environment) (string, Status) {
 
 	uas := randomua.Random()
 

@@ -26,7 +26,7 @@ func (b *BlockSHA1Hash) kind() string {
 	return idBlockSHA1Hash
 }
 
-func (b *BlockSHA1Hash) Run(wce *Environment) (string, error) {
+func (b *BlockSHA1Hash) Run(wce *Environment) (string, Status) {
 	hasher := sha1.New()
 
 	sv, ok := wce.getData(b.FromKey)

@@ -23,7 +23,7 @@ func (b *BlockParseURL) kind() string {
 	return idBlockParseURL
 }
 
-func (b *BlockParseURL) Run(wce *Environment) (string, error) {
+func (b *BlockParseURL) Run(wce *Environment) (string, Status) {
 	resp, err := wce.lastResponse()
 	if err != nil {
 		return log(b, fmt.Sprintf("error getting response - %v", err), Error)

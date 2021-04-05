@@ -25,7 +25,7 @@ func (b *BlockMathSubtract) kind() string {
 	return idBlockMathSubtract
 }
 
-func (b *BlockMathSubtract) Run(wce *Environment) (string, error) {
+func (b *BlockMathSubtract) Run(wce *Environment) (string, Status) {
 
 	s1, ok := wce.getData(b.Source1Key)
 	if !ok {

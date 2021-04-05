@@ -25,7 +25,7 @@ func (b *BlockUnix) kind() string {
 	return idBlockUnix
 }
 
-func (b *BlockUnix) Run(wce *Environment) (string, error) {
+func (b *BlockUnix) Run(wce *Environment) (string, Status) {
 	ts := strconv.FormatInt(time.Now().UTC().Unix(), 10)
 
 	wce.setData(b.ToKey, ts)

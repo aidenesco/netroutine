@@ -23,7 +23,7 @@ func (b *BlockVarToCap) kind() string {
 	return idBlockVarToCap
 }
 
-func (b *BlockVarToCap) Run(wce *Environment) (string, error) {
+func (b *BlockVarToCap) Run(wce *Environment) (string, Status) {
 	v, ok := wce.getData(b.Key)
 	if !ok {
 		return log(b, "couldn't find variable to promote", Error)

@@ -26,7 +26,7 @@ func (b *BlockParseTime) kind() string {
 	return idBlockParseTime
 }
 
-func (b *BlockParseTime) Run(wce *Environment) (string, error) {
+func (b *BlockParseTime) Run(wce *Environment) (string, Status) {
 	old, ok := wce.getData(b.FromKey)
 	if !ok {
 		return log(b, "unable to find value to parse", Error)

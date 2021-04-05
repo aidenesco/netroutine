@@ -32,7 +32,7 @@ func (b *BlockGenerateString) kind() string {
 	return idBlockGenerateString
 }
 
-func (b *BlockGenerateString) Run(wce *Environment) (string, error) {
+func (b *BlockGenerateString) Run(wce *Environment) (string, Status) {
 	built := b.Base
 
 	rand.Seed(time.Now().UnixNano())

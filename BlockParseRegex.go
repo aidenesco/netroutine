@@ -26,7 +26,7 @@ func (b *BlockParseRegex) kind() string {
 	return idBlockParseRegex
 }
 
-func (b *BlockParseRegex) Run(wce *Environment) (string, error) {
+func (b *BlockParseRegex) Run(wce *Environment) (string, Status) {
 	body, err := wce.lastResponseBody()
 	if err != nil {
 		return log(b, fmt.Sprintf("error getting response body - %v", err), Error)
