@@ -37,7 +37,7 @@ type HeaderBuilder struct {
 }
 
 type Key struct {
-	Flag       string
+	Status     Status
 	StatusCode int
 	TextKey    string
 }
@@ -123,18 +123,7 @@ func (b *BlockRequest) Run(wce *Environment) (string, Status) {
 
 	for _, key := range b.KeyChain {
 		if (key.StatusCode == resp.StatusCode) && (strings.Contains(strbody, key.TextKey)) {
-			switch key.Flag {
-			case "success":
-				return log(b, fmt.Sprintf("found success key %v", key.TextKey), Success)
-			case "fail":
-				return log(b, fmt.Sprintf("found fail key %v", key.TextKey), Fail)
-			case "retry":
-				return log(b, fmt.Sprintf("found retry key %v", key.TextKey), Retry)
-			case "error":
-				return log(b, fmt.Sprintf("found error key %v", key.TextKey), Error)
-			case "custom":
-				return log(b, fmt.Sprintf("found custom key %v", key.TextKey), Custom)
-			}
+			return log(b, fmt.Sprintf("found %s key: [%s]", key.Status.String(), key.TextKey), key.Status)
 		}
 	}
 
