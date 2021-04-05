@@ -54,6 +54,14 @@ func (wce *Environment) FullLogs() string {
 	return wce.fullLogs.String()
 }
 
+func (wce *Environment) LastLog() string {
+	if len(wce.Logs) == 0 {
+		return "no logs recorded"
+	}
+
+	return wce.Logs[len(wce.Logs)-1]
+}
+
 func (wce *Environment) lastResponse() (*http.Response, error) {
 	if len(wce.Responses) == 0 {
 		return nil, errors.New("no responses to parse")
