@@ -35,6 +35,7 @@ var (
 		idBlockBase64Decode:      BlockBase64Decode{},
 		idBlockBase64Encode:      BlockBase64Encode{},
 		idBlockBasicAuth:         BlockBasicAuth{},
+		idBlockBodyToReader:      BlockBodyToReader{},
 		idBlockFlagTimePassed:    BlockFlagTimePassed{},
 		idBlockFlagVariables:     BlockFlagVariables{},
 		idBlockGenerateString:    BlockGenerateString{},
