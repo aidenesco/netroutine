@@ -309,6 +309,23 @@ func toFloat64(data interface{}) (f float64, err error) {
 	return
 }
 
+func toInt64(data interface{}) (i int64, err error) {
+	switch v := data.(type) {
+	case int64:
+		i = v
+	case float64:
+		i = int64(v)
+	case string:
+		i, err = strconv.ParseInt(v, 10, 64)
+		if err != nil {
+			return
+		}
+	default:
+		err = errors.New("unsupported type for conversion")
+	}
+	return
+}
+
 func toString(data interface{}) (s string, err error) {
 	switch data.(type) {
 	case string:
