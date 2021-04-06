@@ -64,6 +64,7 @@ var (
 		idBlockSetVariable:       BlockSetVariable{},
 		idBlockSHA1Hash:          BlockSHA1Hash{},
 		idBlockStringBuilder:     BlockStringBuilder{},
+		idBlockTimeNowToVar:      BlockTimeNowToVar{},
 		idBlockToFloat:           BlockToFloat{},
 		idBlockMathTotal:         BlockMathTotal{},
 		idBlockUnix:              BlockUnix{},
