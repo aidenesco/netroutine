@@ -38,6 +38,7 @@ var (
 		idBlockBodyToReader:       BlockBodyToReader{},
 		idBlockTimeFlagPassed:     BlockTimeFlagPassed{},
 		idBlockFlagToStatus:       BlockFlagToStatus{},
+		idBlockFlagToSubroutine:   BlockFlagToSubroutine{},
 		idBlockFlagVariables:      BlockFlagVariables{},
 		idBlockGenerateString:     BlockGenerateString{},
 		idBlockJSONBuilder:        BlockJSONBuilder{},
