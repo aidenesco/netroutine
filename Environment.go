@@ -42,6 +42,19 @@ func AddUniversalEnvironmentOption(option EnvironmentOption) {
 
 type EnvironmentOption func(environment *Environment) error
 
+func (wce *Environment) CleanUp() {
+	wce.Client.CloseIdleConnections()
+}
+
+func (wce *Environment) cleanWorkingData() {
+	newMap := map[string]interface{}{}
+	for k, v := range wce.ExportData {
+		newMap[k] = v
+	}
+
+	wce.WorkingData = newMap
+}
+
 func (wce *Environment) ToResult() *Result {
 	return &Result{
 		ExportData: wce.ExportData,

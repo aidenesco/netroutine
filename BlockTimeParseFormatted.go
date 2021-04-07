@@ -6,27 +6,27 @@ import (
 	"time"
 )
 
-const idBlockParseTime = "BlockParseTime"
+const idBlockTimeParseFormatted = "BlockTimeParseFormatted"
 
-type BlockParseTime struct {
+type BlockTimeParseFormatted struct {
 	FromKey string
 	Format  string
 	ToKey   string
 }
 
-func (b *BlockParseTime) toBytes() ([]byte, error) {
+func (b *BlockTimeParseFormatted) toBytes() ([]byte, error) {
 	return json.Marshal(b)
 }
 
-func (b *BlockParseTime) fromBytes(bytes []byte) error {
+func (b *BlockTimeParseFormatted) fromBytes(bytes []byte) error {
 	return json.Unmarshal(bytes, b)
 }
 
-func (b *BlockParseTime) kind() string {
-	return idBlockParseTime
+func (b *BlockTimeParseFormatted) kind() string {
+	return idBlockTimeParseFormatted
 }
 
-func (b *BlockParseTime) Run(wce *Environment) (string, Status) {
+func (b *BlockTimeParseFormatted) Run(wce *Environment) (string, Status) {
 	old, ok := wce.getData(b.FromKey)
 	if !ok {
 		return log(b, "unable to find value to parse", Error)
@@ -44,5 +44,5 @@ func (b *BlockParseTime) Run(wce *Environment) (string, Status) {
 
 	wce.setData(b.ToKey, ptime)
 
-	return log(b, fmt.Sprintf("set %v to %v", b.ToKey, ptime), Success)
+	return log(b, fmt.Sprintf("set %v to %v", b.ToKey, ptime.String()), Success)
 }
