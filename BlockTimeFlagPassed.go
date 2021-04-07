@@ -36,7 +36,7 @@ func (b *BlockTimeFlagPassed) Run(wce *Environment) (string, Status) {
 		return log(b, "variable not time.Time", Error)
 	}
 
-	passed := time.Now().Before(oTime)
+	passed := time.Now().After(oTime)
 
 	wce.setData(b.ToKey, passed)
 
