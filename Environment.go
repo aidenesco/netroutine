@@ -198,19 +198,21 @@ func NewEnvironment(data map[string]interface{}, options ...EnvironmentOption) (
 
 func WithUniqueTransport() EnvironmentOption {
 	return func(environment *Environment) error {
-		environment.Client.Transport = http.DefaultTransport.(*http.Transport).Clone()
-		//environment.Client.Transport = &http.Transport{
-		//	ForceAttemptHTTP2:     true,
-		//	MaxIdleConns:          5,
-		//	IdleConnTimeout:       90 * time.Second,
-		//	TLSHandshakeTimeout:   10 * time.Second,
-		//	ExpectContinueTimeout: 1 * time.Second,
-		//}
+		//t := http.DefaultTransport.(*http.Transport).Clone()
+		//t.ForceAttemptHTTP2 = false
+		//environment.Client.Transport = http.DefaultTransport.(*http.Transport).Clone()
+		environment.Client.Transport = &http.Transport{
+			ForceAttemptHTTP2:     true,
+			MaxIdleConns:          5,
+			IdleConnTimeout:       90 * time.Second,
+			TLSHandshakeTimeout:   10 * time.Second,
+			ExpectContinueTimeout: 1 * time.Second,
+		}
 		return nil
 	}
 }
 
-func WithTransport(transport *http.Transport) EnvironmentOption {
+func WithTransport(transport http.RoundTripper) EnvironmentOption {
 	return func(environment *Environment) error {
 		environment.Client.Transport = transport
 		return nil
