@@ -24,12 +24,6 @@ func (s Status) String() string {
 }
 
 var (
-	//Success = errors.New("success")
-	//Fail    = errors.New("fail")
-	//Retry   = errors.New("retry")
-	//Error   = errors.New("error")
-	//Custom  = errors.New("custom")
-
 	blocks = map[string]interface{}{
 		idBlockAppId:              BlockAppId{},
 		idBlockBase64Decode:       BlockBase64Decode{},
