@@ -57,10 +57,6 @@ func (b *BlockSliceMerge) Run(wce *Environment) (string, Status) {
 		}
 	}
 
-	if lengths[0] == 0 {
-		return log(b, "got slices without any elements", Error)
-	}
-
 	for i := 0; i < lengths[0]; i++ {
 		var vars []interface{}
 		for _, v := range sources {
