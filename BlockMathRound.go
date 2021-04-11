@@ -30,7 +30,6 @@ func (b *BlockMathRound) kind() string {
 }
 
 func (b *BlockMathRound) Run(wce *Environment) (string, Status) {
-
 	s, ok := wce.getData(b.FromKey)
 	if !ok {
 		return log(b, "couldn't find the source variable", Error)

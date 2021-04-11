@@ -28,9 +28,8 @@ func (b *BlockSliceMerge) kind() string {
 func (b *BlockSliceMerge) Run(wce *Environment) (string, Status) {
 	var built []string
 	var sources [][]interface{}
-	var lengths []int
+	var length int
 
-	//load sources and lengths
 	for _, v := range b.FromKeys {
 		data, ok := wce.getData(v)
 		if !ok {
@@ -43,21 +42,21 @@ func (b *BlockSliceMerge) Run(wce *Environment) (string, Status) {
 		}
 
 		sources = append(sources, sl)
-		lengths = append(lengths, len(sl))
 	}
 
-	//check that we got sources and lengths
-	if len(sources) == 0 || len(lengths) == 0 {
+	if len(sources) == 0 {
 		return log(b, "no sources found", Error)
 	}
 
-	for i := 1; i < len(lengths); i++ {
-		if lengths[i] != lengths[0] {
+	length = len(sources[0])
+
+	for i := 1; i < length; i++ {
+		if len(sources[i]) != length {
 			return log(b, "got slices of varying lengths", Error)
 		}
 	}
 
-	for i := 0; i < lengths[0]; i++ {
+	for i := 0; i < length; i++ {
 		var vars []interface{}
 		for _, v := range sources {
 			vars = append(vars, v[i])
