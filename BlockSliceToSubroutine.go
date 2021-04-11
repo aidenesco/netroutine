@@ -14,18 +14,60 @@ type BlockSliceToSubroutine struct {
 	VariableKeys []string
 	Routine      Routine
 	FromKeys     []string
+	IgnoreErrors bool
 }
 
 func (b *BlockSliceToSubroutine) toBytes() ([]byte, error) {
-	return json.Marshal(b)
+	var t struct {
+		VariableKeys []string
+		Routine      []byte
+		FromKeys     []string
+		IgnoreErrors bool
+	}
+
+	t.VariableKeys = b.VariableKeys
+	t.FromKeys = b.FromKeys
+	t.IgnoreErrors = b.IgnoreErrors
+
+	by, err := b.Routine.ToBytes()
+	if err != nil {
+		return nil, err
+	}
+
+	t.Routine = by
+
+	return json.Marshal(t)
 }
 
 func (b *BlockSliceToSubroutine) fromBytes(bytes []byte) error {
-	return json.Unmarshal(bytes, b)
+	var t struct {
+		VariableKeys []string
+		Routine      []byte
+		FromKeys     []string
+		IgnoreErrors bool
+	}
+
+	err := json.Unmarshal(bytes, &t)
+	if err != nil {
+		return err
+	}
+
+	b.VariableKeys = t.VariableKeys
+	b.FromKeys = t.FromKeys
+	b.IgnoreErrors = t.IgnoreErrors
+
+	routine, err := RoutineFromBytes(t.Routine)
+	if err != nil {
+		return err
+	}
+
+	b.Routine = *routine
+
+	return nil
 }
 
 func (b *BlockSliceToSubroutine) kind() string {
-	return idBlockSliceMerge
+	return idBlockSliceToSubroutine
 }
 
 func (b *BlockSliceToSubroutine) Run(wce *Environment) (string, Status) {
@@ -58,7 +100,7 @@ func (b *BlockSliceToSubroutine) Run(wce *Environment) (string, Status) {
 		}
 	}
 
-	if length != len(b.VariableKeys) {
+	if len(sources) != len(b.VariableKeys) {
 		return log(b, "got variable keys and sources of different lengths", Error)
 	}
 
@@ -69,7 +111,7 @@ func (b *BlockSliceToSubroutine) Run(wce *Environment) (string, Status) {
 
 		b.Routine.Run(wce)
 
-		if wce.Status != Success {
+		if !b.IgnoreErrors && wce.Status != Success {
 			log(b, "got a status other than Success", wce.Status)
 		}
 	}
