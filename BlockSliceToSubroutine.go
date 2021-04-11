@@ -112,7 +112,7 @@ func (b *BlockSliceToSubroutine) Run(wce *Environment) (string, Status) {
 		b.Routine.Run(wce)
 
 		if !b.IgnoreErrors && wce.Status != Success {
-			log(b, "got a status other than Success", wce.Status)
+			return log(b, "got a status other than Success", wce.Status)
 		}
 	}
 
