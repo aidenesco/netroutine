@@ -94,7 +94,7 @@ func (b *BlockSliceToSubroutine) Run(wce *Environment) (string, Status) {
 
 	length = len(sources[0])
 
-	for i := 1; i < length; i++ {
+	for i := 1; i < len(sources); i++ {
 		if len(sources[i]) != length {
 			return log(b, "got slices of varying lengths", Error)
 		}
