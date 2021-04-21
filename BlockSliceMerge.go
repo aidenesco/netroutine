@@ -26,7 +26,7 @@ func (b *BlockSliceMerge) kind() string {
 }
 
 func (b *BlockSliceMerge) Run(wce *Environment) (string, Status) {
-	var built []string
+	built := []string{}
 	var sources [][]interface{}
 	var length int
 
