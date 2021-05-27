@@ -2,62 +2,59 @@ package netroutine
 
 import (
 	"bytes"
-	"encoding/base64"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"strings"
 )
 
-const idBlockRequest = "BlockRequest"
+func init() {
+	blocks[idRequest] = &Request{}
+}
 
-type BlockRequest struct {
-	URL            URLBuilder
-	BodyVar        string
-	Headers        []HeaderBuilder
-	KeyChain       []Key
+const idRequest = "Request"
+
+type Request struct {
+	URL struct {
+		URL       string
+		Variables []string
+		Complex   bool
+	}
+	BodyVar string
+	Headers []struct {
+		Key       string
+		Value     string
+		Variables []string
+		Complex   bool
+	}
+	KeyChain []struct {
+		Status     Status
+		StatusCode int
+		TextKey    string
+	}
 	Method         string
 	IgnoreRedirect bool
 }
 
-type URLBuilder struct {
-	URL       string
-	Variables []string
-	Complex   bool
-}
-
-type HeaderBuilder struct {
-	Key       string
-	Value     string
-	Variables []string
-	Complex   bool
-}
-
-type Key struct {
-	Status     Status
-	StatusCode int
-	TextKey    string
-}
-
-func (b *BlockRequest) fromBytes(data []byte) error {
+func (b *Request) fromBytes(data []byte) error {
 	return json.Unmarshal(data, b)
 }
 
-func (b *BlockRequest) toBytes() ([]byte, error) {
+func (b *Request) toBytes() ([]byte, error) {
 	return json.Marshal(b)
 }
 
-func (b *BlockRequest) kind() string {
-	return idBlockRequest
+func (b *Request) kind() string {
+	return idRequest
 }
 
-func (b *BlockRequest) Run(wce *Environment) (string, Status) {
-	builtURL, err := buildURL(b.URL, wce)
+func (b *Request) Run(ctx context.Context, wce *Environment) (string, Status) {
+	builtURL, err := b.buildURL(wce)
 	if err != nil {
-		return log(b, fmt.Sprintf("error building url - %v", err), Error)
+		return log(b, reportError("building url", err), Error)
 	}
 
 	var (
@@ -69,28 +66,28 @@ func (b *BlockRequest) Run(wce *Environment) (string, Status) {
 		builtBody = bytes.NewBuffer([]byte{})
 		resetBody = bytes.NewBuffer([]byte{})
 	} else {
-		bVar, ok := wce.getData(b.BodyVar)
+		v, ok := wce.getData(b.BodyVar)
 		if !ok {
-			return log(b, "unable to find body variable", Error)
+			return log(b, missingWorkingData(b.BodyVar), Error)
 		}
 
-		sbVar, err := toString(bVar)
+		sv, err := toString(v)
 		if err != nil {
-			return log(b, "unable to convert body variable to string", Error)
+			return log(b, reportWrongType(b.BodyVar), Error)
 		}
 
-		builtBody = strings.NewReader(sbVar)
-		resetBody = strings.NewReader(sbVar)
+		builtBody = strings.NewReader(sv)
+		resetBody = strings.NewReader(sv)
 	}
 
-	req, err := http.NewRequest(b.Method, builtURL, builtBody)
+	req, err := http.NewRequestWithContext(ctx, b.Method, builtURL, builtBody)
 	if err != nil {
-		return log(b, fmt.Sprintf("error building request - %v", err), Error)
+		return log(b, reportError("building request", err), Error)
 	}
 
-	err = addHeaders(b.Headers, wce, req)
+	err = b.addHeaders(wce, req)
 	if err != nil {
-		return log(b, fmt.Sprintf("error building headers - %v", err), Error)
+		return log(b, reportError("adding headers", err), Error)
 	}
 
 	if b.IgnoreRedirect {
@@ -104,65 +101,56 @@ func (b *BlockRequest) Run(wce *Environment) (string, Status) {
 
 	resp, err := wce.Client.Do(req)
 	if err != nil {
-		return log(b, fmt.Sprintf("error doing request - %v", err), Retry)
+		return log(b, reportError("doing request", err), Retry)
 	}
 
-	wce.Responses = append(wce.Responses, resp)
-
-	resp.Request.Body = ioutil.NopCloser(resetBody)
-
-	err = wce.logHTTPResponse(resp)
+	body, err := wce.logHTTPResponse(resp, resetBody)
 	if err != nil {
-		return log(b, fmt.Sprintf("error logging response body - %v", err), Error)
-	}
-
-	strbody, err := wce.lastResponseBody()
-	if err != nil {
-		return log(b, fmt.Sprintf("error reading response body - %v", err), Error)
+		return log(b, reportError("logging response body", err), Error)
 	}
 
 	for _, key := range b.KeyChain {
-		if (key.StatusCode == resp.StatusCode) && (strings.Contains(strbody, key.TextKey)) {
-			return log(b, fmt.Sprintf("found %s key: [%s]", key.Status.String(), key.TextKey), key.Status)
+		if (key.StatusCode == resp.StatusCode) && (strings.Contains(body, key.TextKey)) {
+			return log(b, fmt.Sprintf("found key: \"%s\"", key.TextKey), key.Status)
 		}
 	}
 
-	return log(b, fmt.Sprintf("no keys found - %v, %v, [%v]", builtURL, resp.StatusCode, base64.StdEncoding.EncodeToString([]byte(strbody))), Error)
+	return log(b, "no keys found", Error)
 }
 
-func buildURL(b URLBuilder, wce *Environment) (string, error) {
-	if !b.Complex {
-		return b.URL, nil
+func (b *Request) buildURL(wce *Environment) (string, error) {
+	if !b.URL.Complex {
+		return b.URL.URL, nil
 	}
 
 	var sub []interface{}
-	for _, v := range b.Variables {
+	for _, v := range b.URL.Variables {
 		sv, ok := wce.getData(v)
 		if !ok {
-			return "", errors.New(fmt.Sprintf("failed to find \"%s\" variable", v))
+			return "", errors.New(missingWorkingData(v))
 		}
 		sub = append(sub, sv)
 	}
-	return fmt.Sprintf(b.URL, sub...), nil
+	return fmt.Sprintf(b.URL.URL, sub...), nil
 }
 
-func addHeaders(b []HeaderBuilder, wce *Environment, r *http.Request) error {
-	for _, v := range b {
-		if !v.Complex {
-			r.Header.Add(v.Key, v.Value)
+func (b *Request) addHeaders(wce *Environment, r *http.Request) error {
+	for _, h := range b.Headers {
+		if !h.Complex {
+			r.Header.Add(h.Key, h.Value)
 			continue
 		}
 
 		var sub []interface{}
-		for _, v := range v.Variables {
+		for _, v := range h.Variables {
 			sv, ok := wce.getData(v)
 			if !ok {
-				return errors.New(fmt.Sprintf("Failed to find \"%v\" variable.", v))
+				return errors.New(missingWorkingData(v))
 			}
 
 			sub = append(sub, sv)
 		}
-		r.Header.Add(v.Key, fmt.Sprintf(v.Value, sub...))
+		r.Header.Add(h.Key, fmt.Sprintf(h.Value, sub...))
 	}
 	return nil
 }

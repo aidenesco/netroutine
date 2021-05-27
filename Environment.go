@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"net/http/cookiejar"
@@ -99,43 +100,49 @@ func (wce *Environment) lastResponseBody() (string, error) {
 
 	resp.Body = ioutil.NopCloser(bytes.NewBuffer(respBody))
 
-	//if string(respBody) == "" {
-	//	return "", errors.New("empty body")
-	//}
-
 	return string(respBody), nil
 }
 
-func (wce *Environment) logHTTPResponse(resp *http.Response) error {
+func (wce *Environment) logHTTPResponse(resp *http.Response, reqBody io.Reader) (string, error) {
+	wce.Responses = append(wce.Responses, resp)
+
+	resp.Request.Body = ioutil.NopCloser(reqBody)
+
 	respBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	_ = resp.Body.Close()
+	err = resp.Body.Close()
+	if err != nil {
+		return "", err
+	}
 
 	resp.Body = ioutil.NopCloser(bytes.NewBuffer(respBody))
 
 	wce.fullLogs.WriteString("[Request]\n")
 	err = resp.Request.Write(&wce.fullLogs)
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	if resp.Request.Method != http.MethodGet && resp.Request.Method != http.MethodHead && resp.Request.Method != http.MethodOptions && resp.Request.Method != "" {
-		wce.fullLogs.WriteString("\n\n")
+	if resp.Request.ContentLength > 0 {
+		wce.fullLogs.WriteString("\n")
 	}
 
 	wce.fullLogs.WriteString("[Response]\n")
 	err = resp.Write(&wce.fullLogs)
 	if err != nil {
-		return err
+		return "", err
 	}
-	wce.fullLogs.WriteString("\n\n")
+
+	if resp.ContentLength > 0 {
+		wce.fullLogs.WriteString("\n")
+	}
 
 	resp.Body = ioutil.NopCloser(bytes.NewBuffer(respBody))
 
-	return nil
+	return string(respBody), nil
 }
 
 func (wce *Environment) addLog(message string) {
@@ -241,7 +248,6 @@ func WithProxyURL(proxy string) EnvironmentOption {
 		trans.Proxy = http.ProxyURL(purl)
 		return nil
 	}
-
 }
 
 func WithProxyFunc(pf func(r *http.Request) (*url.URL, error)) EnvironmentOption {
