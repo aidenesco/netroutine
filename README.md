@@ -11,9 +11,9 @@ go get -u github.com/aidenesco/netroutine
 import "github.com/aidenesco/netroutine"
 
 func main() {
-    routine := netroutine.NewRoutine([]netroutine.Runnable{})
+    routine := netroutine.NewRoutine()
     
-    env, _ := netroutine.NewEnvironment(map[string]interface{}{})
+    env, _ := netroutine.NewEnvironment(make(map[string]interface{}))
 
     routine.Run(env)
 
