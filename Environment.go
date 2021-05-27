@@ -18,18 +18,20 @@ import (
 var universalOptions []EnvironmentOption
 
 type Environment struct {
-	WorkingData map[string]interface{}
-	ExportData  map[string]interface{}
-	Status      Status
-	Logs        []string
-	Responses   []*http.Response
-	Client      *http.Client
-	mu          sync.Mutex
-	fullLogs    bytes.Buffer
-	secrets     map[string]string
-	maxRetry    int
-	retrySleep  time.Duration
+	WorkingData  map[string]interface{}
+	ExportData   map[string]interface{}
+	Status       Status
+	Logs         []string
+	LastResponse *http.Response
+	Client       *http.Client
+	mu           sync.Mutex
+	fullLogs     bytes.Buffer
+	secrets      map[string]string
+	maxRetry     int
+	retrySleep   time.Duration
 }
+
+type EnvironmentOption func(environment *Environment) error
 
 type Result struct {
 	ExportData map[string]interface{}
@@ -39,21 +41,6 @@ type Result struct {
 
 func AddUniversalEnvironmentOption(option EnvironmentOption) {
 	universalOptions = append(universalOptions, option)
-}
-
-type EnvironmentOption func(environment *Environment) error
-
-func (wce *Environment) CleanUp() {
-	wce.Client.CloseIdleConnections()
-}
-
-func (wce *Environment) cleanWorkingData() {
-	newMap := map[string]interface{}{}
-	for k, v := range wce.ExportData {
-		newMap[k] = v
-	}
-
-	wce.WorkingData = newMap
 }
 
 func (wce *Environment) ToResult() *Result {
@@ -80,17 +67,14 @@ func (wce *Environment) StatusString() string {
 	return wce.Status.String()
 }
 
-func (wce *Environment) lastResponse() (*http.Response, error) {
-	if len(wce.Responses) == 0 {
-		return nil, errors.New("no responses to parse")
-	}
-	return wce.Responses[len(wce.Responses)-1], nil
+func (wce *Environment) lastResponse() *http.Response {
+	return wce.LastResponse
 }
 
 func (wce *Environment) lastResponseBody() (string, error) {
-	resp, err := wce.lastResponse()
-	if err != nil {
-		return "", err
+	resp := wce.lastResponse()
+	if resp == nil {
+		return "", errors.New("no response found")
 	}
 
 	respBody, err := ioutil.ReadAll(resp.Body)
@@ -104,9 +88,9 @@ func (wce *Environment) lastResponseBody() (string, error) {
 }
 
 func (wce *Environment) logHTTPResponse(resp *http.Response, reqBody io.Reader) (string, error) {
-	wce.Responses = append(wce.Responses, resp)
-
 	resp.Request.Body = ioutil.NopCloser(reqBody)
+
+	wce.LastResponse = resp
 
 	respBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {

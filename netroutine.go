@@ -6,6 +6,10 @@ func reportError(flow string, err error) string {
 	return fmt.Sprintf("error during \"%s\": %v", flow, err)
 }
 
+func missingSecret(fromkey string) string {
+	return fmt.Sprintf("unable to find secret at \"%s\"", fromkey)
+}
+
 func reportWrongType(fromkey string) string {
 	return fmt.Sprintf("unable to convert the working data at \"%s\" to the required type", fromkey)
 }

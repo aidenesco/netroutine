@@ -1,7 +1,7 @@
 github.com/Jeffail/gabs/v2 v2.6.1 h1:wwbE6nTQTwIMsMxzi6XFQQYRZ6wDc1mSdxoAN+9U4Gk=
 github.com/Jeffail/gabs/v2 v2.6.1/go.mod h1:xCn81vdHKxFUuWWAaD5jCTQDNPBMh5pPs9IJ+NcziBI=
-github.com/aidenesco/anticaptcha v0.0.0-20210407025048-310791035dc3 h1:hSrv+w5llgZZipItsf8aYgiqoVdeyX4WGLasqthOCec=
-github.com/aidenesco/anticaptcha v0.0.0-20210407025048-310791035dc3/go.mod h1:R3WnQIX0TCJl89tjtmky7loa9I4Qcj2mJjBTEeyDlUw=
+github.com/aidenesco/anticaptcha v0.0.0-20210527212701-64a6709983b5 h1:Umg583BE6sXlePqdROu2IiLtDYem9AwTUQkPEhIiaE0=
+github.com/aidenesco/anticaptcha v0.0.0-20210527212701-64a6709983b5/go.mod h1:R3WnQIX0TCJl89tjtmky7loa9I4Qcj2mJjBTEeyDlUw=
 github.com/aidenesco/randomua v0.0.0-20201111025750-034f5a0807a9 h1:aZowxsi4R2QhuSJZtum6GJDVwpEdfSlihQEGcmAcwsg=
 github.com/aidenesco/randomua v0.0.0-20201111025750-034f5a0807a9/go.mod h1:ThdB+joIJca4IbnTW7gESuDr22qrC71un8dw4EGXKvk=
 github.com/google/uuid v1.2.0 h1:qJYtXnJRWmpe7m/3XlyhrsLrEURqHRM2kxzoxXqyUDs=
