@@ -1,104 +1,22 @@
 package netroutine
 
 import (
-	"crypto/sha1"
+	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"reflect"
 	"time"
-)
-
-type Status int
-
-const (
-	Success Status = iota
-	Fail
-	Retry
-	Error
-	Custom
-)
-
-func (s Status) String() string {
-	return [...]string{"Success", "Fail", "Retry", "Error", "Custom"}[s]
-}
-
-var (
-	blocks = map[string]interface{}{
-		idBlockAppId:              BlockAppId{},
-		idBlockBase64Decode:       BlockBase64Decode{},
-		idBlockBase64Encode:       BlockBase64Encode{},
-		idBlockBasicAuth:          BlockBasicAuth{},
-		idBlockBodyToReader:       BlockBodyToReader{},
-		idBlockTimeFlagPassed:     BlockTimeFlagPassed{},
-		idBlockFlagToStatus:       BlockFlagToStatus{},
-		idBlockFlagToSubroutine:   BlockFlagToSubroutine{},
-		idBlockFlagVariables:      BlockFlagVariables{},
-		idBlockGenerateString:     BlockGenerateString{},
-		idBlockJSONBuilder:        BlockJSONBuilder{},
-		idBlockMathAdd:            BlockMathAdd{},
-		idBlockMathCeil:           BlockMathCeil{},
-		idBlockMathCondition:      BlockMathCondition{},
-		idBlockMathDivide:         BlockMathDivide{},
-		idBlockMathFloor:          BlockMathFloor{},
-		idBlockMathMultiply:       BlockMathMultiply{},
-		idBlockMathSubtract:       BlockMathSubtract{},
-		idBlockMD5Hash:            BlockMD5Hash{},
-		idBlockParseCookies:       BlockParseCookies{},
-		idBlockParseHeader:        BlockParseHeader{},
-		idBlockParseJSON:          BlockParseJSON{},
-		idBlockParseLR:            BlockParseLR{},
-		idBlockParseRegex:         BlockParseRegex{},
-		idBlockTimeParseFormatted: BlockTimeParseFormatted{},
-		idBlockParseURL:           BlockParseURL{},
-		idBlockRandomChoiceList:   BlockRandomChoiceList{},
-		idBlockRandomUA:           BlockRandomUA{},
-		idBlockRecaptcha:          BlockRecaptcha{},
-		idBlockRecaptchaV3:        BlockRecaptchaV3{},
-		idBlockRequest:            BlockRequest{},
-		idBlockSetCookie:          BlockSetCookie{},
-		idBlockSetVariable:        BlockSetVariable{},
-		idBlockSHA1Hash:           BlockSHA1Hash{},
-		idBlockStringBuilder:      BlockStringBuilder{},
-		idBlockSubroutine:         BlockSubroutine{},
-		idBlockTimeAddDuration:    BlockTimeAddDuration{},
-		idBlockTimeFromUnix:       BlockTimeFromUnix{},
-		idBlockTimeNowToVar:       BlockTimeNowToVar{},
-		idBlockTimeParseDuration:  BlockTimeParseDuration{},
-		idBlockTimeToUnix:         BlockTimeToUnix{},
-		idBlockToFloat:            BlockToFloat{},
-		idBlockMathTotal:          BlockMathTotal{},
-		idBlockUnix:               BlockUnix{},
-		idBlockUnixMilli:          BlockUnixMilli{},
-		idBlockUnixNano:           BlockUnixNano{},
-		idBlockURLDecode:          BlockURLDecode{},
-		idBlockURLEncode:          BlockURLEncode{},
-		idBlockURLEncodedBuilder:  BlockURLEncodedBuilder{},
-		idBlockUUID:               BlockUUID{},
-		idBlockVarContainsFilter:  BlockVarContainsFilter{},
-		idBlockVarLenFilter:       BlockVarLenFilter{},
-		idBlockVarToCap:           BlockVarToCap{},
-	}
 )
 
 type Routine struct {
 	blocks []Runnable
 }
 
-type Runnable interface {
-	Run(wce *Environment) (message string, status Status)
-	kind() string
-	toBytes() ([]byte, error)
-	fromBytes([]byte) error
-}
-
-type intermediateData struct {
-	Kind string
-	Data []byte
-}
-
 func RoutineFromBytes(raw []byte) (*Routine, error) {
-	var toBuild []intermediateData
+	var toBuild []struct {
+		Kind string
+		Data []byte
+	}
 	var builtBlocks []Runnable
 
 	if err := json.Unmarshal(raw, &toBuild); err != nil {
@@ -127,7 +45,10 @@ func RoutineFromBytes(raw []byte) (*Routine, error) {
 }
 
 func (r *Routine) ToBytes() ([]byte, error) {
-	var blocks []intermediateData
+	var blocks []struct {
+		Kind string
+		Data []byte
+	}
 
 	for _, b := range r.blocks {
 		data, err := b.toBytes()
@@ -135,12 +56,15 @@ func (r *Routine) ToBytes() ([]byte, error) {
 			return nil, err
 		}
 
-		blocks = append(blocks, intermediateData{Kind: b.kind(), Data: data})
+		blocks = append(blocks, struct {
+			Kind string
+			Data []byte
+		}{Kind: b.kind(), Data: data})
 	}
 	return json.Marshal(blocks)
 }
 
-func (r *Routine) Run(wce *Environment) {
+func (r *Routine) Run(ctx context.Context, wce *Environment) {
 	for _, v := range r.blocks {
 		attempts := 0
 		for {
@@ -148,7 +72,7 @@ func (r *Routine) Run(wce *Environment) {
 				return
 			}
 
-			msg, status := v.Run(wce)
+			msg, status := v.Run(ctx, wce)
 
 			wce.addLog(msg)
 			wce.Status = status
@@ -159,7 +83,7 @@ func (r *Routine) Run(wce *Environment) {
 			case Retry:
 				wce.Client.CloseIdleConnections()
 
-				//Retries are often network failures
+				//Retries are often network failures or rate limiting
 				time.Sleep(wce.retrySleep)
 
 				attempts++
@@ -175,15 +99,6 @@ func (r *Routine) Run(wce *Environment) {
 	}
 }
 
-func (r *Routine) ToSum() (string, error) {
-	bytes, err := r.ToBytes()
-	if err != nil {
-		return "", err
-	}
-
-	return fmt.Sprintf("%v", sha1.Sum(bytes)), nil
-}
-
-func NewRoutine(b []Runnable) *Routine {
+func NewRoutine(b ...Runnable) *Routine {
 	return &Routine{blocks: b}
 }

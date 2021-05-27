@@ -380,7 +380,3 @@ func statusFromString(s string) (retStatus Status, retError error) {
 	}
 	return
 }
-
-func log(b Runnable, m string, s Status) (string, Status) {
-	return "[" + s.String() + "] " + b.kind() + ": " + m, s
-}
