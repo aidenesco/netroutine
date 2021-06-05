@@ -15,7 +15,7 @@ func main() {
     
     env, _ := netroutine.NewEnvironment(make(map[string]interface{}))
 
-    routine.Run(env)
+    env.Run(routine)
 
     fmt.Println(env.Status) // Success
   }
