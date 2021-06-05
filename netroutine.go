@@ -14,8 +14,8 @@ func reportWrongType(fromkey string) string {
 	return fmt.Sprintf("unable to convert the working data at \"%s\" to the required type", fromkey)
 }
 
-func setWorkingData(tokey, value string) string {
-	return fmt.Sprintf("set working data at \"%s\" to \"%s\"", tokey, value)
+func setWorkingData(tokey string, value interface{}) string {
+	return fmt.Sprintf("set working data at \"%s\" to \"%s\"", tokey, fmt.Sprintf("%v", value))
 }
 
 func missingWorkingData(fromkey string) string {

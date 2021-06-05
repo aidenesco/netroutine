@@ -2,6 +2,7 @@ package netroutine
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -41,6 +42,41 @@ type Result struct {
 
 func AddUniversalEnvironmentOption(option EnvironmentOption) {
 	universalOptions = append(universalOptions, option)
+}
+
+func (wce *Environment) Run(ctx context.Context, r *Routine) {
+	for _, v := range r.blocks {
+		attempts := 0
+		for {
+			if attempts >= wce.maxRetry && wce.maxRetry != -1 {
+				return
+			}
+
+			msg, status := v.Run(ctx, wce)
+
+			wce.addLog(msg)
+			wce.Status = status
+
+			switch status {
+			case Error:
+				return
+			case Retry:
+				wce.Client.CloseIdleConnections()
+
+				//Retries are often network failures or rate limiting
+				time.Sleep(wce.retrySleep)
+
+				attempts++
+				continue
+			case Fail:
+				return
+			case Custom:
+				return
+			case Success:
+			}
+			break
+		}
+	}
 }
 
 func (wce *Environment) ToResult() *Result {
@@ -301,13 +337,13 @@ func newBaseEnvironment() *Environment {
 }
 
 func toFloat64(data interface{}) (f float64, err error) {
-	switch data.(type) {
+	switch d := data.(type) {
 	case string:
-		f, err = strconv.ParseFloat(data.(string), 64)
+		f, err = strconv.ParseFloat(d, 64)
 	case int:
-		f = float64(data.(int))
+		f = float64(d)
 	case float64:
-		f = data.(float64)
+		f = d
 	default:
 		err = fmt.Errorf("unable to convert value of type: %v", reflect.TypeOf(data))
 	}
@@ -332,15 +368,15 @@ func toInt64(data interface{}) (i int64, err error) {
 }
 
 func toString(data interface{}) (s string, err error) {
-	switch data.(type) {
+	switch d := data.(type) {
 	case string:
-		s = data.(string)
+		s = d
 	case int:
-		s = strconv.Itoa(data.(int))
+		s = strconv.Itoa(d)
 	case float64:
-		s = fmt.Sprintf("%v", data.(float64))
+		s = fmt.Sprintf("%v", d)
 	default:
-		s = fmt.Sprintf("%v", data)
+		s = fmt.Sprintf("%v", d)
 	}
 	return
 }
@@ -351,22 +387,4 @@ func toTime(data interface{}) (time.Time, error) {
 		return time.Time{}, errors.New("value not a time")
 	}
 	return ptime, nil
-}
-
-func statusFromString(s string) (retStatus Status, retError error) {
-	switch s {
-	case Success.String():
-		retStatus = Success
-	case Fail.String():
-		retStatus = Fail
-	case Retry.String():
-		retStatus = Retry
-	case Error.String():
-		retStatus = Error
-	case Custom.String():
-		retStatus = Custom
-	default:
-		retError = errors.New("status should be one of: Success, Fail, Retry, Error, Custom")
-	}
-	return
 }

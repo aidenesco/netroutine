@@ -1,11 +1,9 @@
 package netroutine
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
 	"reflect"
-	"time"
 )
 
 type Routine struct {
@@ -62,41 +60,6 @@ func (r *Routine) ToBytes() ([]byte, error) {
 		}{Kind: b.kind(), Data: data})
 	}
 	return json.Marshal(blocks)
-}
-
-func (r *Routine) Run(ctx context.Context, wce *Environment) {
-	for _, v := range r.blocks {
-		attempts := 0
-		for {
-			if attempts >= wce.maxRetry && wce.maxRetry != -1 {
-				return
-			}
-
-			msg, status := v.Run(ctx, wce)
-
-			wce.addLog(msg)
-			wce.Status = status
-
-			switch status {
-			case Error:
-				return
-			case Retry:
-				wce.Client.CloseIdleConnections()
-
-				//Retries are often network failures or rate limiting
-				time.Sleep(wce.retrySleep)
-
-				attempts++
-				continue
-			case Fail:
-				return
-			case Custom:
-				return
-			case Success:
-			}
-			break
-		}
-	}
 }
 
 func NewRoutine(b ...Runnable) *Routine {
