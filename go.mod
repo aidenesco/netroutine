@@ -1,6 +1,6 @@
 module github.com/aidenesco/netroutine
 
-go 1.14
+go 1.16
 
 require (
 	github.com/Jeffail/gabs/v2 v2.6.1
