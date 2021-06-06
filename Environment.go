@@ -52,6 +52,12 @@ func (wce *Environment) Run(ctx context.Context, r *Routine) {
 				return
 			}
 
+			if ctx.Err() != nil {
+				wce.addLog(ctx.Err().Error())
+				wce.Status = Error
+				return
+			}
+
 			msg, status := v.Run(ctx, wce)
 
 			wce.addLog(msg)
