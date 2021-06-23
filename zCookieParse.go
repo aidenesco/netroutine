@@ -6,32 +6,32 @@ import (
 	"net/url"
 )
 
-const idParseCookies = "ParseCookies"
+const idParseCookie = "ParseCookie"
 
 func init() {
-	blocks[idParseCookies] = &ParseCookies{}
+	blocks[idParseCookie] = &ParseCookie{}
 }
 
-type ParseCookies struct {
+type ParseCookie struct {
 	URL        string
 	CookieName string
 	ToKey      string
 	Required   bool
 }
 
-func (b *ParseCookies) toBytes() ([]byte, error) {
+func (b *ParseCookie) toBytes() ([]byte, error) {
 	return json.Marshal(b)
 }
 
-func (b *ParseCookies) fromBytes(bytes []byte) error {
+func (b *ParseCookie) fromBytes(bytes []byte) error {
 	return json.Unmarshal(bytes, b)
 }
 
-func (b *ParseCookies) kind() string {
-	return idParseCookies
+func (b *ParseCookie) kind() string {
+	return idParseCookie
 }
 
-func (b *ParseCookies) Run(ctx context.Context, wce *Environment) (string, Status) {
+func (b *ParseCookie) Run(ctx context.Context, wce *Environment) (string, Status) {
 	parsed, err := url.Parse(b.URL)
 	if err != nil {
 		return log(b, reportError("parsing url", err), Error)
