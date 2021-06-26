@@ -3,10 +3,12 @@ package netroutine
 import (
 	"bytes"
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"strings"
 )
@@ -104,18 +106,55 @@ func (b *Request) Run(ctx context.Context, wce *Environment) (string, Status) {
 		return log(b, reportError("doing request", err), Retry)
 	}
 
-	body, err := wce.logHTTPResponse(resp, resetBody)
+	respBody, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return log(b, reportError("logging response body", err), Error)
+		return log(b, reportError("reading request body", err), Error)
 	}
+
+	err = resp.Body.Close()
+	if err != nil {
+		return log(b, reportError("closing request body", err), Error)
+	}
+
+	resp.Request.Body = ioutil.NopCloser(resetBody)
+	resp.Body = ioutil.NopCloser(bytes.NewBuffer(respBody))
+
+	reqLogBuffer := new(bytes.Buffer)
+
+	reqLogBuffer.WriteString("[Request]\n")
+	err = resp.Request.Write(reqLogBuffer)
+	if err != nil {
+		return log(b, reportError("writing request logs", err), Error)
+	}
+
+	if resp.Request.ContentLength > 0 {
+		reqLogBuffer.WriteString("\n")
+	}
+
+	reqLogBuffer.WriteString("[Response]\n")
+	err = resp.Write(reqLogBuffer)
+	if err != nil {
+		return log(b, reportError("writing response logs", err), Error)
+	}
+
+	if resp.ContentLength > 0 {
+		reqLogBuffer.WriteString("\n")
+	}
+
+	logs := base64.StdEncoding.EncodeToString(reqLogBuffer.Bytes())
+
+	resp.Body = ioutil.NopCloser(bytes.NewBuffer(respBody))
+	wce.LastResponse = resp
+
+	body := string(respBody)
 
 	for _, key := range b.KeyChain {
 		if (key.StatusCode == resp.StatusCode) && (strings.Contains(body, key.TextKey)) {
-			return log(b, fmt.Sprintf("found key: \"%s\"", key.TextKey), key.Status)
+			return log(b, fmt.Sprintf("found key: \"%s\" in %s", key.TextKey, logs), key.Status)
 		}
 	}
 
-	return log(b, "no keys found", Error)
+	return log(b, fmt.Sprintf("no keys found: %s", logs), Error)
 }
 
 func (b *Request) buildURL(wce *Environment) (string, error) {

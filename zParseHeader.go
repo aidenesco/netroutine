@@ -30,9 +30,9 @@ func (b *ParseHeader) kind() string {
 }
 
 func (b *ParseHeader) Run(ctx context.Context, wce *Environment) (string, Status) {
-	resp := wce.lastResponse()
-	if resp != nil {
-		return log(b, "nil response", Error)
+	resp, err := wce.lastResponse()
+	if err != nil {
+		return log(b, "getting response", Error)
 	}
 
 	val := resp.Header.Get(b.Header)

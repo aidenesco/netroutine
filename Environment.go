@@ -109,17 +109,21 @@ func (wce *Environment) StatusString() string {
 	return wce.Status.String()
 }
 
-func (wce *Environment) lastResponse() *http.Response {
-	return wce.LastResponse
+func (wce *Environment) lastResponse() (*http.Response, error) {
+	if wce.LastResponse == nil {
+		return nil, errors.New("no response found")
+	}
+
+	return wce.LastResponse, nil
 }
 
 func (wce *Environment) lastResponseBody() (string, error) {
-	resp := wce.lastResponse()
-	if resp == nil {
-		return "", errors.New("no response found")
+	resp, err := wce.lastResponse()
+	if err == nil {
+		return "", err
 	}
 
-	respBody, err := ioutil.ReadAll(resp.Body)
+	respBody, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return "", err
 	}
@@ -129,47 +133,50 @@ func (wce *Environment) lastResponseBody() (string, error) {
 	return string(respBody), nil
 }
 
-func (wce *Environment) logHTTPResponse(resp *http.Response, reqBody io.Reader) (string, error) {
-	resp.Request.Body = ioutil.NopCloser(reqBody)
+// func (wce *Environment) logHTTPResponse(resp *http.Response, reqBody io.Reader) (responseBody, reqLogs string, err error) {
+// 	respBody, err := ioutil.ReadAll(resp.Body)
+// 	if err != nil {
+// 		return
+// 	}
 
-	wce.LastResponse = resp
+// 	err = resp.Body.Close()
+// 	if err != nil {
+// 		return
+// 	}
 
-	respBody, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return "", err
-	}
+// 	responseBody = string(respBody)
 
-	err = resp.Body.Close()
-	if err != nil {
-		return "", err
-	}
+// 	resp.Request.Body = ioutil.NopCloser(reqBody)
+// 	resp.Body = ioutil.NopCloser(bytes.NewBuffer(respBody))
 
-	resp.Body = ioutil.NopCloser(bytes.NewBuffer(respBody))
+// 	reqLogBuffer := new(bytes.Buffer)
 
-	wce.fullLogs.WriteString("[Request]\n")
-	err = resp.Request.Write(&wce.fullLogs)
-	if err != nil {
-		return "", err
-	}
+// 	reqLogBuffer.WriteString("[Request]\n")
+// 	err = resp.Request.Write(reqLogBuffer)
+// 	if err != nil {
+// 		return
+// 	}
 
-	if resp.Request.ContentLength > 0 {
-		wce.fullLogs.WriteString("\n")
-	}
+// 	if resp.Request.ContentLength > 0 {
+// 		reqLogBuffer.WriteString("\n")
+// 	}
 
-	wce.fullLogs.WriteString("[Response]\n")
-	err = resp.Write(&wce.fullLogs)
-	if err != nil {
-		return "", err
-	}
+// 	reqLogBuffer.WriteString("[Response]\n")
+// 	err = resp.Write(reqLogBuffer)
+// 	if err != nil {
+// 		return
+// 	}
 
-	if resp.ContentLength > 0 {
-		wce.fullLogs.WriteString("\n")
-	}
+// 	if resp.ContentLength > 0 {
+// 		reqLogBuffer.WriteString("\n")
+// 	}
 
-	resp.Body = ioutil.NopCloser(bytes.NewBuffer(respBody))
+// 	reqLogs = reqLogBuffer.String()
+// 	resp.Body = ioutil.NopCloser(bytes.NewBuffer(respBody))
+// 	wce.LastResponse = resp
 
-	return string(respBody), nil
-}
+// 	return
+// }
 
 func (wce *Environment) addLog(message string) {
 	_, _ = wce.fullLogs.Write([]byte(fmt.Sprintf("%v\n\n", message)))
