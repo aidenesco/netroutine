@@ -8,7 +8,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"strings"
 )
@@ -116,10 +115,10 @@ func (b *Request) Run(ctx context.Context, wce *Environment) (string, Status) {
 		return log(b, reportError("closing request body", err), Error)
 	}
 
-	wce.lastResponseBody = string(respBody)
+	strBody := string(respBody)
 
-	resp.Request.Body = ioutil.NopCloser(resetBody)
-	resp.Body = ioutil.NopCloser(bytes.NewBufferString(wce.lastResponseBody))
+	resp.Request.Body = io.NopCloser(resetBody)
+	resp.Body = io.NopCloser(bytes.NewBufferString(strBody))
 
 	reqLogBuffer := new(bytes.Buffer)
 
@@ -145,11 +144,12 @@ func (b *Request) Run(ctx context.Context, wce *Environment) (string, Status) {
 
 	logs := base64.StdEncoding.EncodeToString(reqLogBuffer.Bytes())
 
-	resp.Body = ioutil.NopCloser(bytes.NewBufferString(wce.lastResponseBody))
+	resp.Body = io.NopCloser(bytes.NewBufferString(strBody))
 	wce.lastResponse = resp
+	wce.lastResponseBody = strBody
 
 	for _, key := range b.KeyChain {
-		if (key.StatusCode == resp.StatusCode) && (strings.Contains(wce.lastResponseBody, key.TextKey)) {
+		if (key.StatusCode == resp.StatusCode) && (strings.Contains(strBody, key.TextKey)) {
 			return log(b, fmt.Sprintf("found key: \"%s\" in %s", key.TextKey, logs), key.Status)
 		}
 	}
