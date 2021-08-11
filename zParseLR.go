@@ -2,6 +2,7 @@ package netroutine
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"strings"
@@ -76,7 +77,7 @@ func (b *ParseLR) Run(ctx context.Context, wce *Environment) (string, Status) {
 	findFirst := strings.Index(wce.lastResponseBody, b.Left)
 	if findFirst == -1 {
 		if b.Required {
-			return log(b, "unable to find required left string", Fail)
+			return log(b, fmt.Sprintf("unable to find required left string in [%s]", base64.StdEncoding.EncodeToString([]byte(wce.lastResponseBody))), Fail)
 		}
 		return log(b, "unable to find non required left string", Success)
 	}
