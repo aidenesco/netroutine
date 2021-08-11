@@ -116,8 +116,10 @@ func (b *Request) Run(ctx context.Context, wce *Environment) (string, Status) {
 		return log(b, reportError("closing request body", err), Error)
 	}
 
+	strBody := string(respBody)
+
 	resp.Request.Body = ioutil.NopCloser(resetBody)
-	resp.Body = ioutil.NopCloser(bytes.NewBuffer(respBody))
+	resp.Body = ioutil.NopCloser(bytes.NewBufferString(strBody))
 
 	reqLogBuffer := new(bytes.Buffer)
 
@@ -146,10 +148,8 @@ func (b *Request) Run(ctx context.Context, wce *Environment) (string, Status) {
 	resp.Body = ioutil.NopCloser(bytes.NewBuffer(respBody))
 	wce.LastResponse = resp
 
-	body := string(respBody)
-
 	for _, key := range b.KeyChain {
-		if (key.StatusCode == resp.StatusCode) && (strings.Contains(body, key.TextKey)) {
+		if (key.StatusCode == resp.StatusCode) && (strings.Contains(strBody, key.TextKey)) {
 			return log(b, fmt.Sprintf("found key: \"%s\" in %s", key.TextKey, logs), key.Status)
 		}
 	}
