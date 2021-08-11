@@ -30,12 +30,11 @@ func (b *BodyToReader) kind() string {
 }
 
 func (b *BodyToReader) Run(ctx context.Context, wce *Environment) (string, Status) {
-	body, err := wce.lastResponseBody()
-	if err != nil {
-		return log(b, reportError("getting response body", err), Error)
+	if wce.lastResponseBody == "" {
+		return log(b, "getting response body", Error)
 	}
 
-	wce.setData(b.ToKey, strings.NewReader(body))
+	wce.setData(b.ToKey, strings.NewReader(wce.lastResponseBody))
 
 	return log(b, fmt.Sprintf("set \"%v\" to a reader", b.ToKey), Success)
 }

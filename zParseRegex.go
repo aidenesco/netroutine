@@ -32,13 +32,9 @@ func (b *ParseRegex) kind() string {
 }
 
 func (b *ParseRegex) Run(ctx context.Context, wce *Environment) (string, Status) {
-	body, err := wce.lastResponseBody()
-	if err != nil {
-		return log(b, reportError("getting response body", err), Error)
-	}
-
 	reg := regexp.MustCompile(b.Regex)
-	found := reg.FindString(body)
+
+	found := reg.FindString(wce.lastResponseBody)
 	if found == "" {
 		if b.Required {
 			return log(b, fmt.Sprintf("couldn't match \"%v\"", b.Regex), Fail)

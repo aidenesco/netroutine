@@ -34,15 +34,14 @@ func (b *ParseLR) kind() string {
 }
 
 func (b *ParseLR) Run(ctx context.Context, wce *Environment) (string, Status) {
-	strbody, err := wce.lastResponseBody()
-	if err != nil {
-		return log(b, reportError("getting response body", err), Error)
+	if wce.lastResponseBody == "" {
+		return log(b, "getting response body", Error)
 	}
 
 	if b.Recursive {
 		var parsed []string
 		var parseFrom string
-		parseFrom = strbody
+		parseFrom = wce.lastResponseBody
 
 		for {
 			findFirst := strings.Index(parseFrom, b.Left)
@@ -74,7 +73,7 @@ func (b *ParseLR) Run(ctx context.Context, wce *Environment) (string, Status) {
 
 	}
 
-	findFirst := strings.Index(strbody, b.Left)
+	findFirst := strings.Index(wce.lastResponseBody, b.Left)
 	if findFirst == -1 {
 		if b.Required {
 			return log(b, "unable to find required left string", Fail)
@@ -84,7 +83,7 @@ func (b *ParseLR) Run(ctx context.Context, wce *Environment) (string, Status) {
 
 	firstIndex := findFirst + len(b.Left)
 
-	findSecond := strings.Index(strbody[firstIndex:], b.Right)
+	findSecond := strings.Index(wce.lastResponseBody[firstIndex:], b.Right)
 	if findSecond == -1 {
 		if b.Required {
 			return log(b, "unable to find required right string", Fail)
@@ -92,7 +91,7 @@ func (b *ParseLR) Run(ctx context.Context, wce *Environment) (string, Status) {
 		return log(b, "unable to find non required right string", Success)
 	}
 
-	parsed := strbody[firstIndex : firstIndex+findSecond]
+	parsed := wce.lastResponseBody[firstIndex : firstIndex+findSecond]
 
 	wce.setData(b.ToKey, parsed)
 

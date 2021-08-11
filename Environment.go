@@ -1,17 +1,15 @@
 package netroutine
 
 import (
-	"bytes"
 	"context"
 	"errors"
 	"fmt"
-	"io"
-	"io/ioutil"
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
 	"reflect"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 )
@@ -23,13 +21,14 @@ type Environment struct {
 	ExportData   map[string]interface{}
 	Status       Status
 	Logs         []string
-	LastResponse *http.Response
+	lastResponse *http.Response
 	Client       *http.Client
 	mu           sync.Mutex
-	fullLogs     bytes.Buffer
-	secrets      map[string]string
-	maxRetry     int
-	retrySleep   time.Duration
+	// fullLogs         bytes.Buffer
+	secrets          map[string]string
+	maxRetry         int
+	retrySleep       time.Duration
+	lastResponseBody string
 }
 
 type EnvironmentOption func(environment *Environment) error
@@ -94,7 +93,12 @@ func (wce *Environment) ToResult() *Result {
 }
 
 func (wce *Environment) FullLogs() string {
-	return wce.fullLogs.String()
+	var b strings.Builder
+
+	for _, v := range wce.Logs {
+		b.WriteString(v + "\n")
+	}
+	return b.String()
 }
 
 func (wce *Environment) LastLog() string {
@@ -109,33 +113,33 @@ func (wce *Environment) StatusString() string {
 	return wce.Status.String()
 }
 
-func (wce *Environment) lastResponse() (*http.Response, error) {
-	if wce.LastResponse == nil {
-		return nil, errors.New("no response found")
-	}
+// func (wce *Environment) lastResponse() (*http.Response, error) {
+// 	if wce.LastResponse == nil {
+// 		return nil, errors.New("no response found")
+// 	}
 
-	return wce.LastResponse, nil
-}
+// 	return wce.LastResponse, nil
+// }
 
-func (wce *Environment) lastResponseBody() (strBody string, err error) {
-	var body []byte
+// func (wce *Environment) lastResponseBody() (strBody string, err error) {
+// 	var body []byte
 
-	resp, err := wce.lastResponse()
-	if err == nil {
-		return
-	}
+// 	resp, err := wce.lastResponse()
+// 	if err == nil {
+// 		return
+// 	}
 
-	body, err = io.ReadAll(resp.Body)
-	if err != nil {
-		return
-	}
+// 	body, err = io.ReadAll(resp.Body)
+// 	if err != nil {
+// 		return
+// 	}
 
-	strBody = string(body)
+// 	strBody = string(body)
 
-	resp.Body = ioutil.NopCloser(bytes.NewBufferString(strBody))
+// 	resp.Body = ioutil.NopCloser(bytes.NewBufferString(strBody))
 
-	return
-}
+// 	return
+// }
 
 // func (wce *Environment) logHTTPResponse(resp *http.Response, reqBody io.Reader) (responseBody, reqLogs string, err error) {
 // 	respBody, err := ioutil.ReadAll(resp.Body)
@@ -183,7 +187,6 @@ func (wce *Environment) lastResponseBody() (strBody string, err error) {
 // }
 
 func (wce *Environment) addLog(message string) {
-	_, _ = wce.fullLogs.Write([]byte(fmt.Sprintf("%v\n\n", message)))
 	wce.Logs = append(wce.Logs, message)
 }
 

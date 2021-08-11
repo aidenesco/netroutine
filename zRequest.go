@@ -116,10 +116,10 @@ func (b *Request) Run(ctx context.Context, wce *Environment) (string, Status) {
 		return log(b, reportError("closing request body", err), Error)
 	}
 
-	strBody := string(respBody)
+	wce.lastResponseBody = string(respBody)
 
 	resp.Request.Body = ioutil.NopCloser(resetBody)
-	resp.Body = ioutil.NopCloser(bytes.NewBufferString(strBody))
+	resp.Body = ioutil.NopCloser(bytes.NewBufferString(wce.lastResponseBody))
 
 	reqLogBuffer := new(bytes.Buffer)
 
@@ -145,11 +145,11 @@ func (b *Request) Run(ctx context.Context, wce *Environment) (string, Status) {
 
 	logs := base64.StdEncoding.EncodeToString(reqLogBuffer.Bytes())
 
-	resp.Body = ioutil.NopCloser(bytes.NewBufferString(strBody))
-	wce.LastResponse = resp
+	resp.Body = ioutil.NopCloser(bytes.NewBufferString(wce.lastResponseBody))
+	wce.lastResponse = resp
 
 	for _, key := range b.KeyChain {
-		if (key.StatusCode == resp.StatusCode) && (strings.Contains(strBody, key.TextKey)) {
+		if (key.StatusCode == resp.StatusCode) && (strings.Contains(wce.lastResponseBody, key.TextKey)) {
 			return log(b, fmt.Sprintf("found key: \"%s\" in %s", key.TextKey, logs), key.Status)
 		}
 	}

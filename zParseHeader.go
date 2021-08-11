@@ -30,12 +30,11 @@ func (b *ParseHeader) kind() string {
 }
 
 func (b *ParseHeader) Run(ctx context.Context, wce *Environment) (string, Status) {
-	resp, err := wce.lastResponse()
-	if err != nil {
+	if wce.lastResponse == nil {
 		return log(b, "getting response", Error)
 	}
 
-	val := resp.Header.Get(b.Header)
+	val := wce.lastResponse.Header.Get(b.Header)
 	if val == "" {
 		if b.Required {
 			return log(b, "unable to find required header", Fail)

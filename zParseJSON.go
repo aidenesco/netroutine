@@ -1,12 +1,9 @@
 package netroutine
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
-	"io/ioutil"
 
 	"github.com/Jeffail/gabs/v2"
 )
@@ -37,19 +34,7 @@ func (b *ParseJSON) kind() string {
 }
 
 func (b *ParseJSON) Run(ctx context.Context, wce *Environment) (string, Status) {
-	resp, err := wce.lastResponse()
-	if err == nil {
-		return log(b, reportError("getting response", err), Error)
-	}
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return log(b, reportError("reading response body", err), Error)
-	}
-
-	resp.Body = ioutil.NopCloser(bytes.NewBuffer(body))
-
-	parsed, err := gabs.ParseJSON([]byte(body))
+	parsed, err := gabs.ParseJSON([]byte(wce.lastResponseBody))
 	if err != nil {
 		return log(b, reportError("loading to gabs", err), Error)
 	}
