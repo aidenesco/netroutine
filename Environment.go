@@ -117,20 +117,24 @@ func (wce *Environment) lastResponse() (*http.Response, error) {
 	return wce.LastResponse, nil
 }
 
-func (wce *Environment) lastResponseBody() (string, error) {
+func (wce *Environment) lastResponseBody() (strBody string, err error) {
+	var body []byte
+
 	resp, err := wce.lastResponse()
 	if err == nil {
-		return "", err
+		return
 	}
 
-	respBody, err := io.ReadAll(resp.Body)
+	body, err = io.ReadAll(resp.Body)
 	if err != nil {
-		return "", err
+		return
 	}
 
-	resp.Body = ioutil.NopCloser(bytes.NewBuffer(respBody))
+	strBody = string(body)
 
-	return string(respBody), nil
+	resp.Body = ioutil.NopCloser(bytes.NewBufferString(strBody))
+
+	return
 }
 
 // func (wce *Environment) logHTTPResponse(resp *http.Response, reqBody io.Reader) (responseBody, reqLogs string, err error) {

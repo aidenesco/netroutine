@@ -145,7 +145,7 @@ func (b *Request) Run(ctx context.Context, wce *Environment) (string, Status) {
 
 	logs := base64.StdEncoding.EncodeToString(reqLogBuffer.Bytes())
 
-	resp.Body = ioutil.NopCloser(bytes.NewBuffer(respBody))
+	resp.Body = ioutil.NopCloser(bytes.NewBufferString(strBody))
 	wce.LastResponse = resp
 
 	for _, key := range b.KeyChain {
