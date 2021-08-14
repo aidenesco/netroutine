@@ -18,6 +18,7 @@ type RecaptchaV2 struct {
 	Sitekey      string
 	ToKey        string
 	IsEnterprise bool
+	CaptchaHost  string
 }
 
 func (b *RecaptchaV2) toBytes() ([]byte, error) {
@@ -38,7 +39,7 @@ func (b *RecaptchaV2) Run(ctx context.Context, wce *Environment) (string, Status
 		return log(b, missingSecret("anticaptcha"), Error)
 	}
 
-	client := anticaptcha.NewClient(key)
+	client := anticaptcha.NewClient(key, anticaptcha.WithHost(b.CaptchaHost))
 
 	if b.IsEnterprise {
 		solution, err := client.RecaptchaV2EnterpriseProxyless(ctx, b.SiteURL, b.Sitekey)
